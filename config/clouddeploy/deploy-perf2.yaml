@@ -1,0 +1,18 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  annotations:
+    run.googleapis.com/ingress: internal
+    run.googleapis.com/ingress-status: internal
+  name: app-perf
+  labels:
+    cloud.googleapis.com/location: northamerica-northeast2
+spec:
+  template:
+    spec:
+      containers:
+        - image: app
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 512Mi

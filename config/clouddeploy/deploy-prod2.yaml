@@ -1,0 +1,27 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  annotations:
+    run.googleapis.com/ingress: internal
+    run.googleapis.com/ingress-status: internal
+  name: api-update-vendor-invoice-reim
+  labels:
+    cloud.googleapis.com/location: northamerica-northeast2
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: 1
+        autoscaling.knative.dev/maxScale: 200
+        run.googleapis.com/startup-cpu-boost: "true"
+    spec:
+      containers:
+        - image: app
+          env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: dev,prod
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1024Mi
+          timeoutSeconds: 600

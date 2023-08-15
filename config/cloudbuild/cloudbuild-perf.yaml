@@ -1,0 +1,71 @@
+steps:
+#Configure JFrog CLI to point to JFrog Artifactory
+# - name: 'gcr.io/$PROJECT_ID/java/jfrog:latest'
+#   entrypoint: 'bash'
+#   args: ['-c', 'jf c add sleepcountry-maven-maven-remote-1 --artifactory-url=https://sleepcountry.jfrog.io/artifactory --user=${_USER_NAME} --password=${_PASSWORD} --interactive=false --enc-password=false && jf config show sleepcountry-maven-maven-remote-1 && jf mvn-config --server-id-deploy sleepcountry-maven-maven-remote-1 --server-id-resolve sleepcountry-maven-maven-remote-1 --repo-deploy-releases sleepcountry-maven-libs-release  --repo-deploy-snapshots sleepcountry-maven-libs-snapshot --repo-resolve-releases sleepcountry-maven-libs-release --repo-resolve-snapshots sleepcountry-maven-libs-snapshot && jf mvn clean package']
+#   dir: '.' 
+
+# # - name: 'gcr.io/cloud-builders/docker'
+# #   entrypoint: 'bash'
+# #   args: ['-c', 'docker pull northamerica-northeast1-docker.pkg.dev/sc-dso-dev/$REPO_NAME:latest || exit 0']
+
+# # Tag a default builder version.
+# - name: 'gcr.io/cloud-builders/docker'
+#   args: [
+#               'build',
+#               '-t', 'northamerica-northeast1-docker.pkg.dev/sc-dso-dev/$REPO_NAME:latest',
+#               '--cache-from', 'northamerica-northeast1-docker.pkg.dev/sc-dso-dev/$REPO_NAME:latest',
+#               '--build-arg','API_TOKEN=${_DT_API_TOKEN}',
+#               '--build-arg','API_URL=${_DT_API_URL}',
+#               '--build-arg','CLOUD_DEPLOY_NAME=${_CLOUD_DEPLOY_NAME}',
+#               '.'
+#           ]    
+# - name: 'gcr.io/cloud-builders/docker'
+#   args: ['push', 'northamerica-northeast1-docker.pkg.dev/sc-dso-dev/$REPO_NAME:latest']
+- name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+  args: 
+        [
+          "deploy","releases", "create", "release-${_CLOUD_DEPLOY_NAME}-${_RELEAE_SHA_NAME}",
+          "--delivery-pipeline", "${_CLOUD_DEPLOY_NAME}",
+          "--region", "northamerica-northeast1",
+          "--images", "app=northamerica-northeast1-docker.pkg.dev/sc-dso-dev/$REPO_NAME:latest",
+        ]
+  entrypoint: gcloud    
+- name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+  args: 
+        [
+          "deploy","releases", "promote", 
+          "--release","release-${_CLOUD_DEPLOY_NAME}-${_RELEAE_SHA_NAME}",
+          "--to-target","perf-env",
+          "--delivery-pipeline", "${_CLOUD_DEPLOY_NAME}",
+          "--region", "northamerica-northeast1"
+        ]     
+  entrypoint: gcloud
+- name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+  args: 
+        [
+          "deploy","releases", "promote", 
+          "--release","release-${_CLOUD_DEPLOY_NAME}-${_RELEAE_SHA_NAME}",
+          "--to-target","prod-env",
+          "--delivery-pipeline", "${_CLOUD_DEPLOY_NAME}",
+          "--region", "northamerica-northeast2"
+        ]     
+  entrypoint: gcloud  
+# - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+#   args: 
+#         [
+#           "run","deploy","${_CLOUD_DEPLOY_NAME}",
+#           "--image", "northamerica-northeast1-docker.pkg.dev/sc-dso-dev/$REPO_NAME:latest",
+#           "--project", "sc-gcp-dev-367313",
+#           "--region", "northamerica-northeast1",
+#           "--platform", "managed",
+#           "--ingress", "internal",
+#           "--memory", "512Mi"
+#         ]     
+#   entrypoint: gcloud
+  # - name: gcr.io/cloud-builders/gcloud
+  #   entrypoint: 'bash'
+  #   args: [ '-c', "gcloud config set project sc-apigee-dev && gcloud auth print-access-token > decrypted-password.txt" ]  
+- name: 'gcr.io/cloud-builders/mvn'
+  entrypoint: 'bash'
+  args: ['-c', 'mvn install -f ./${_CLOUD_DEPLOY_NAME}-v1/pom.xml -Pperf'] 

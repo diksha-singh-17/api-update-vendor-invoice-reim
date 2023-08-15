@@ -1,0 +1,77 @@
+apiVersion: deploy.cloud.google.com/v1
+kind: DeliveryPipeline
+metadata:
+  name: api-update-vendor-invoice-reim
+description: sleep country application deployment pipeline
+serialPipeline:
+  stages:
+    - targetId: dev-env
+      profiles: [dev]
+    - targetId: qa-env
+      profiles: [qa]
+    - targetId: uat-env
+      profiles: [uat]
+    - targetId: perf-env1
+      profiles: [perf-env-1]
+    - targetId: perf-env2
+      profiles: [perf-env-2]
+    - targetId: prod-env1
+      profiles: [prod-env-1]
+    - targetId: prod-env2
+      profiles: [prod-env-1]
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: api-update-vendor-invoice-reim
+description: Cloud Run development service
+run:
+  location: projects/sc-gcp-dev-367313/locations/northamerica-northeast1
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: api-update-vendor-invoice-reim
+description: Cloud Run development service
+run:
+  location: projects/sc-gcp-qa/locations/northamerica-northeast1
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: api-update-vendor-invoice-reim
+description: Cloud Run development service
+run:
+  location: projects/sc-gcp-uat/locations/northamerica-northeast1
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: api-update-vendor-invoice-reim
+description: Cloud Run development service
+run:
+  location: projects/sc-gcp-perf/locations/northamerica-northeast1
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: api-update-vendor-invoice-reim
+description: Cloud Run development service
+run:
+  location: projects/sc-gcp-perf/locations/northamerica-northeast2
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: api-update-vendor-invoice-reim
+description: Cloud Run development service
+run:
+  location: projects/sc-gcp-prod/locations/northamerica-northeast1
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: api-update-vendor-invoice-reim
+description: Cloud Run development service
+run:
+  location: projects/sc-gcp-prod/locations/northamerica-northeast2
